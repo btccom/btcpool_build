@@ -35,7 +35,7 @@ RUN apt-get update && apt-get install -y \
     wget \
     yasm \
     zlib1g-dev \
-    && apt-get autoremove
+    && apt-get autoremove && apt-get clean q&& rm -rf /var/lib/apt/lists/*
 
 # Build libevent static library
 #
@@ -50,19 +50,17 @@ RUN cd /tmp && \
     ./autogen.sh && \
     ./configure --disable-shared && \
     make && \
-    make install
+    make install && \
+    rm -rf /tmp/*
 
 # Build librdkafka static library
 RUN cd /tmp && wget https://github.com/edenhill/librdkafka/archive/0.9.1.tar.gz && \
     [ $(sha256sum 0.9.1.tar.gz | cut -d " " -f 1) = "5ad57e0c9a4ec8121e19f13f05bacc41556489dfe8f46ff509af567fdee98d82" ] && \
     tar zxvf 0.9.1.tar.gz && cd librdkafka-0.9.1 && \
-    ./configure && make && make install
+    ./configure && make && make install && rm -rf /tmp/*
 
 # Remove dynamic libraries of librdkafka
 # In this way, the constructed deb package will
 # not have dependencies that not from software sources.
 RUN cd /usr/local/lib && \
     find . | grep 'rdkafka' | grep '.so' | xargs rm
-
-# Clean temporary files
-RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
