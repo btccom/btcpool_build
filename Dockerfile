@@ -49,14 +49,14 @@ RUN cd /tmp && \
     cd libevent && \
     ./autogen.sh && \
     ./configure --disable-shared && \
-    make -j${BUILD_JOBS} && \
+    make && \
     make install
 
 # Build librdkafka static library
 RUN cd /tmp && wget https://github.com/edenhill/librdkafka/archive/0.9.1.tar.gz && \
     [ $(sha256sum 0.9.1.tar.gz | cut -d " " -f 1) = "5ad57e0c9a4ec8121e19f13f05bacc41556489dfe8f46ff509af567fdee98d82" ] && \
     tar zxvf 0.9.1.tar.gz && cd librdkafka-0.9.1 && \
-    ./configure && make -j${BUILD_JOBS} && make install
+    ./configure && make && make install
 
 # Remove dynamic libraries of librdkafka
 # In this way, the constructed deb package will
