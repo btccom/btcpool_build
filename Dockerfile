@@ -45,7 +45,7 @@ RUN apt-get update && apt-get install -y \
 #         from consume thread
 #         <https://github.com/btccom/btcpool/issues/75>
 RUN cd /tmp && \
-    git clone https://github.com/libevent/libevent.git --depth 1 && \
+    git clone https://github.com/btccom/libevent.git --branch master-pkg-config --depth 1 && \
     cd libevent && \
     ./autogen.sh && \
     ./configure --disable-shared && \
