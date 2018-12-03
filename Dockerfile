@@ -23,6 +23,7 @@ RUN apt-get update && apt-get install -y \
     libboost-all-dev \
     libconfig++-dev \
     libcurl4-openssl-dev \
+    libdb++-dev \
     libgmp-dev \
     libgoogle-glog-dev \
     libhiredis-dev \
@@ -67,3 +68,11 @@ RUN cd /tmp && wget https://github.com/edenhill/librdkafka/archive/0.9.1.tar.gz 
 # not have dependencies that not from software sources.
 RUN cd /usr/local/lib && \
     find . | grep 'rdkafka' | grep '.so' | xargs rm
+
+# Build blockchain
+RUN mkdir /work && git clone https://github.com/btccom/UnitedBitcoin.git --branch 2.3.0.1-openssl-1.1.x --depth 1 /work/bitcoin && \
+    cd /work/bitcoin && ./autogen.sh && ./configure --with-incompatible-bdb --with-gui=no --disable-tests --disable-bench && make && \
+    cd /work/bitcoin/src/secp256k1 && ./autogen.sh && ./configure --enable-module-recovery && make
+
+# Used later by btcpool build
+ENV CHAIN_TYPE=UBTC
