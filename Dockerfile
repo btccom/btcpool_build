@@ -67,3 +67,11 @@ RUN cd /tmp && wget https://github.com/edenhill/librdkafka/archive/0.9.1.tar.gz 
 # not have dependencies that not from software sources.
 RUN cd /usr/local/lib && \
     find . | grep 'rdkafka' | grep '.so' | xargs rm
+
+# Build blockchain
+RUN mkdir /work && git clone https://github.com/Bitcoin-ABC/bitcoin-abc.git --branch v0.17.2 --depth 1 /work/bitcoin && \
+    cd /work/bitcoin && ./autogen.sh && ./configure --with-gui=no --disable-wallet --disable-tests --disable-bench && make && \
+    cd /work/bitcoin/src/secp256k1 && ./autogen.sh && ./configure --enable-module-recovery && make
+
+# Used later by btcpool build
+ENV CHAIN_TYPE=BCH
