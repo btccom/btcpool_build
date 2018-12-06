@@ -27,6 +27,7 @@ RUN apt-get update && apt-get install -y \
     libgoogle-glog-dev \
     libhiredis-dev \
     libmysqlclient-dev \
+    libprotobuf-dev \
     libssl-dev \
     libtool \
     libzmq3-dev \
