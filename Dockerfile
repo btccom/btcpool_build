@@ -34,6 +34,7 @@ RUN apt-get update && apt-get install -y \
     libzookeeper-mt-dev \
     openssl \
     pkg-config \
+    protobuf-compiler \
     wget \
     yasm \
     zlib1g-dev \
