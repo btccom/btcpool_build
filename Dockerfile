@@ -69,9 +69,15 @@ RUN cd /usr/local/lib && \
     find . | grep 'rdkafka' | grep '.so' | xargs rm
 
 # Build blockchain
-RUN mkdir /work && git clone https://github.com/Bitcoin-ABC/bitcoin-abc.git --branch v0.18.5 --depth 1 /work/bitcoin && \
-    cd /work/bitcoin && ./autogen.sh && ./configure --with-gui=no --disable-wallet --disable-tests --disable-bench && make && \
-    cd /work/bitcoin/src/secp256k1 && ./autogen.sh && ./configure --enable-module-recovery && make
+RUN mkdir -p /work/bitcoin && cd /work/bitcoin && wget https://github.com/Bitcoin-ABC/bitcoin-abc/archive/v0.18.5.tar.gz && \
+    [ $(sha256sum v0.18.5.tar.gz | cut -d " " -f 1) = "d2a3ee6d25f626ecaf991b38635ced26f913edbb531ce289f16ccabda257db9e" ] && \
+    tar xvf v0.18.5.tar.gz --strip 1 && rm v0.18.5.tar.gz && ./autogen.sh && mkdir -p /tmp/bitcoin && \
+    cd /tmp/bitcoin && /work/bitcoin/configure --with-gui=no --disable-wallet --disable-tests --disable-bench && \
+    make -C src libbitcoin_common.a libbitcoin_consensus.a libbitcoin_util.a crypto/libbitcoin_crypto_base.a crypto/libbitcoin_crypto_sse41.a crypto/libbitcoin_crypto_shani.a crypto/libbitcoin_crypto_avx2.a && \
+    cp src/config/bitcoin-config.h /work/bitcoin/src/config/ && cp src/libbitcoin_*.a /work/bitcoin/src/ && cp src/crypto/libbitcoin_crypto_*.a /work/bitcoin/src/crypto/ && \
+    cd /work/bitcoin/src/secp256k1 && ./autogen.sh && mkdir -p /tmp/secp256k1 && \
+    cd /tmp/secp256k1 && /work/bitcoin/src/secp256k1/configure --enable-module-recovery && make && \
+    mkdir /work/bitcoin/src/secp256k1/.libs && cp .libs/libsecp256k1.a /work/bitcoin/src/secp256k1/.libs/ && rm -rf /tmp/*
 
 # Used later by btcpool build
 ENV CHAIN_TYPE=BCH
