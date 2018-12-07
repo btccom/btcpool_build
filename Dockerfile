@@ -69,9 +69,15 @@ RUN cd /usr/local/lib && \
     find . | grep 'rdkafka' | grep '.so' | xargs rm
 
 # Build blockchain
-RUN mkdir /work && git clone https://github.com/bitcoin/bitcoin.git --branch v0.16.3 --depth 1 /work/bitcoin && \
-    cd /work/bitcoin && ./autogen.sh && ./configure --with-gui=no --disable-wallet --disable-tests --disable-bench && make && \
-    cd /work/bitcoin/src/secp256k1 && ./autogen.sh && ./configure --enable-module-recovery && make
+RUN mkdir -p /work/bitcoin && cd /work/bitcoin && wget https://github.com/bitcoin/bitcoin/archive/v0.16.3.tar.gz && \
+    [ $(sha256sum v0.16.3.tar.gz | cut -d " " -f 1) = "c8557b6df5f5cdf67b3ddf6fe501cfc6e0be698f175f16927dd08d6040df7d9f" ] && \
+    tar xvf v0.16.3.tar.gz --strip 1 && rm v0.16.3.tar.gz && ./autogen.sh && mkdir -p /tmp/bitcoin && \
+    cd /tmp/bitcoin && /work/bitcoin/configure --with-gui=no --disable-wallet --disable-tests --disable-bench && \
+    make -C src libbitcoin_common.a libbitcoin_consensus.a libbitcoin_util.a crypto/libbitcoin_crypto.a && \
+    cp src/config/bitcoin-config.h /work/bitcoin/src/config/ && cp src/libbitcoin_*.a /work/bitcoin/src/ && cp src/crypto/libbitcoin_crypto.a /work/bitcoin/src/crypto/ && \
+    cd /work/bitcoin/src/secp256k1 && ./autogen.sh && mkdir -p /tmp/secp256k1 && \
+    cd /tmp/secp256k1 && /work/bitcoin/src/secp256k1/configure --enable-module-recovery && make && \
+    mkdir /work/bitcoin/src/secp256k1/.libs && cp .libs/libsecp256k1.a /work/bitcoin/src/secp256k1/.libs/ && rm -rf /tmp/*
 
 # Used later by btcpool build
 ENV CHAIN_TYPE=BTC
