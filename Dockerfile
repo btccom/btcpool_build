@@ -17,6 +17,7 @@ RUN apt-get update && apt-get install -y \
     autotools-dev \
     bsdmainutils \
     build-essential \
+    clang-format \
     cmake \
     curl \
     git \
